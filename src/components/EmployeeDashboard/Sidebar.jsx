@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { MdOutlineDashboard, MdOutlinePeople, MdOutlineApartment, MdOutlineBeachAccess, MdOutlineAttachMoney, MdOutlineSettings } from 'react-icons/md'
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authContext'
 
 export const Sidebar = () => {
 
@@ -131,7 +131,6 @@ export const Sidebar = () => {
                         <div style={styles.icon}><MdOutlineAttachMoney size={24} color="#fff" /></div>
                         <span>Salary</span>
                     </NavLink>
-                    
                     <NavLink to="/employee-dashboard/setting" style={getNavLinkStyle} onClick={handleNavClick}>
                         <div style={styles.icon}><MdOutlineSettings size={24} color="#fff" /></div>
                         <span>Setting</span>

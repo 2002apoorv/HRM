@@ -129,14 +129,6 @@ export const AdminSidebar = () => {
             <div style={styles.icon}><MdOutlineAttachMoney size={24} color="#fff" /></div>
             <span>Salary</span>
           </NavLink>
-          <NavLink to="/admin-dashboard/attendance" style={getNavLinkStyle} onClick={handleNavClick}>
-            <div style={styles.icon}><MdOutlineAttachMoney size={24} color="#fff" /></div>
-            <span>Attendance</span>
-          </NavLink>
-          <NavLink to="/admin-dashboard/attendance-report" style={getNavLinkStyle} onClick={handleNavClick}>
-            <div style={styles.icon}><MdOutlineAttachMoney size={24} color="#fff" /></div>
-            <span>Attendance Report</span>
-          </NavLink>
           <NavLink to="/admin-dashboard/setting" style={getNavLinkStyle} onClick={handleNavClick}>
             <div style={styles.icon}><MdOutlineSettings size={24} color="#fff" /></div>
             <span>Settings</span>

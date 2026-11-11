@@ -16,8 +16,8 @@ const {user}=useAuth()
       gap: '1.2rem',
       minWidth: '220px',
       minHeight: '110px',
-      marginTop:"100px",
       fontFamily: 'Inter, sans-serif',
+      marginTop:"100px"
     },
     iconBox: {
       width: '48px',

@@ -1,196 +1,210 @@
-import React, { useState,useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-
-import axios from 'axios';
-
-
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../utils/api';
+import {
+  MdOutlineArrowBack,
+  MdOutlineBeachAccess,
+  MdOutlineCheckCircle,
+  MdOutlineCancel,
+  MdOutlineHourglassBottom,
+} from 'react-icons/md';
 
 export const Listt = () => {
-  const {user}=useAuth()
-  const [leaves,setLeaves]=useState([])
-  let sno=1;
-  const {id}=useParams()
+  const [leaves, setLeaves] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchEmployeeLeaves();
+  }, [id]);
 
-  const fetchLeaves = async () => {
+  const fetchEmployeeLeaves = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/leave/${id}/${user.role}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      
+      const response = await api.get(`/leave/${id}`);
       if (response.data.success) {
-        setLeaves(response.data.leaves);
-        
+        setLeaves(response.data.leaves || []);
       }
-    } catch (error) {
-      console.error("Error fetching salary:", error);
+    } catch (err) {
+      console.error('Error fetching employee leaves:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchLeaves();
-  }, []);
+  const getStatusBadge = (status) => {
+    const s = (status || '').toLowerCase();
+    if (s === 'approved') {
+      return (
+        <span
+          style={{
+            background: 'rgba(16, 185, 129, 0.2)',
+            color: '#6ee7b7',
+            padding: '0.2rem 0.6rem',
+            borderRadius: '12px',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+          }}
+        >
+          Approved
+        </span>
+      );
+    }
+    if (s === 'rejected') {
+      return (
+        <span
+          style={{
+            background: 'rgba(239, 68, 68, 0.2)',
+            color: '#fca5a5',
+            padding: '0.2rem 0.6rem',
+            borderRadius: '12px',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+          }}
+        >
+          Rejected
+        </span>
+      );
+    }
+    return (
+      <span
+        style={{
+          background: 'rgba(245, 158, 11, 0.2)',
+          color: '#fcd34d',
+          padding: '0.2rem 0.6rem',
+          borderRadius: '12px',
+          fontSize: '0.8rem',
+          fontWeight: 600,
+        }}
+      >
+        Pending
+      </span>
+    );
+  };
 
   const styles = {
-    card: {
-      background: '#fff',
-      borderRadius: '16px',
-      boxShadow: '0 4px 15px rgba(44,62,80,0.08)',
-      padding: '2rem',
-      margin: '1.5rem 0',
-      marginTop: '50px',
-      fontFamily: 'Inter, sans-serif',
-    },
     header: {
-      color: '#23272F',
-      fontWeight: 700,
-      fontSize: '2rem',
-      marginBottom: '2.2rem',
-      fontFamily: "'Playfair Display', sans-serif",
-      letterSpacing: '0.5px',
-    },
-    actionsCard: {
-      background: '#f5f3ff',
-      borderRadius: '12px',
-      border: '1px solid #ede9fe',
-      boxShadow: '0 2px 8px rgba(44,62,80,0.04)',
-      padding: '1rem 1.5rem',
-      marginBottom: '2rem',
       display: 'flex',
       alignItems: 'center',
       gap: '1rem',
+      marginBottom: '2rem',
     },
-    input: {
-      padding: '0.7rem 1rem',
-      border: '1px solid #E0E0E0',
-      borderRadius: '8px',
-      fontSize: '1rem',
-      background: '#fff',
-      color: '#23272F',
-      outline: 'none',
-      flex: 1,
-    },
-    addButton: {
-      background: '#4c1d95',
+    backBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '40px',
+      height: '40px',
+      borderRadius: '10px',
+      background: 'rgba(255, 255, 255, 0.08)',
+      border: '1px solid rgba(255, 255, 255, 0.12)',
       color: '#fff',
-      border: 'none',
-      borderRadius: '8px',
-      padding: '0.7rem 1.2rem',
-      fontWeight: 600,
-      fontSize: '1rem',
       cursor: 'pointer',
-      textDecoration: 'none',
-      transition: 'background 0.2s',
-      whiteSpace: 'nowrap',
-      boxShadow: '0 1px 4px rgba(44,62,80,0.08)',
+    },
+    title: {
+      fontSize: '1.8rem',
+      fontWeight: 800,
+      color: '#fff',
+      letterSpacing: '-0.5px',
+      margin: 0,
+    },
+    subtitle: {
+      color: '#94a3b8',
+      fontSize: '0.9rem',
+      marginTop: '0.2rem',
+    },
+    card: {
+      background: 'rgba(30, 41, 59, 0.7)',
+      backdropFilter: 'blur(12px)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: '16px',
+      padding: '1.5rem',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
     },
     tableWrapper: {
-      width: '100%',
       overflowX: 'auto',
-      background: '#fff',
-      borderRadius: '12px',
-      boxShadow: '0 2px 8px rgba(44,62,80,0.04)',
-      padding: '1rem 0.5rem',
-    }
-  };
-
-  // Custom styles for DataTable to match the screenshot
-  const customStyles = {
+    },
     table: {
-      style: {
-        background: 'transparent',
-      },
+      width: '100%',
+      borderCollapse: 'collapse',
+      textAlign: 'left',
     },
-    headRow: {
-      style: {
-        background: '#fff',
-        borderBottom: '2px solid #f0f0f0',
-      },
+    th: {
+      padding: '0.8rem 1rem',
+      color: '#94a3b8',
+      fontSize: '0.82rem',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+      background: 'rgba(15, 23, 42, 0.4)',
     },
-    headCells: {
-      style: {
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        fontSize: '0.9rem',
-        fontWeight: 700,
-        color: '#23272F',
-      },
+    td: {
+      padding: '0.85rem 1rem',
+      fontSize: '0.92rem',
+      color: '#e2e8f0',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
     },
-    rows: {
-      style: {
-        background: '#fff',
-        minHeight: '48px',
-        borderBottom: '1px solid #f0f0f0',
-        '&:not(:last-of-type)': {
-          borderBottom: '1px solid #f0f0f0',
-        },
-      },
-    },
-    cells: {
-      style: {
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        fontSize: '0.95rem',
-        color: '#23272F',
-      },
+    emptyState: {
+      padding: '3rem 1rem',
+      textAlign: 'center',
+      color: '#64748b',
     },
   };
 
   return (
-    <div style={styles.card}>
-      <div>
-        <h3 style={styles.header}>Manage Leaves</h3>
-      </div>
-      <div style={styles.actionsCard}>
-        <input
-          type="text"
-          placeholder='Search by employee name'
-          style={styles.input}
-        //   onChange={handleFilter}
-        />
-
-        <Link to="/employee-dashboard/add-leave" style={styles.addButton}>
-          Add New Leave
-        </Link>
+    <div>
+      <div style={styles.header}>
+        <button style={styles.backBtn} onClick={() => navigate('/admin-dashboard/employees')}>
+          <MdOutlineArrowBack size={20} />
+        </button>
+        <div>
+          <h1 style={styles.title}>Employee Leave History</h1>
+          <p style={styles.subtitle}>Historical record of leave requests and manager actions.</p>
+        </div>
       </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1rem', background: '#fff', fontFamily: "'Inter', sans-serif" }}>
-        <thead>
-          <tr style={{ background: '#f5f3ff', color: '#23272F' }}>
-            <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>SNO</th>
-            <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Leave Type</th>
-            <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>FROM</th>
-            <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>TO</th>
-            <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Description</th>
-            
-            <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaves.map((leave) => (
-            <tr
-              key={leave._id}
-              style={{
-                background: sno % 2 === 0 ? '#fff' : '#f7f6f3',
-                color: '#23272F',
-                borderBottom: '1px solid #EEE',
-              }}
-            >
-              <td style={{ padding: '10px 8px', textAlign: 'center' }}>{sno++}</td>
-              <td style={{ padding: '10px 8px', textAlign: 'center' }}>{leave.leaveType}</td>
-              
-              <td style={{ padding: '10px 8px', textAlign: 'center' }}>{new Date(leave.startDate).toLocaleDateString()}</td>
-              <td style={{ padding: '10px 8px', textAlign: 'center' }}>{new Date(leave.endDate).toLocaleDateString()}</td>
-              <td style={{ padding: '10px 8px', textAlign: 'center' }}>{leave.reason}</td>
-              <td style={{ padding: '10px 8px', textAlign: 'center' }}>{leave.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={styles.card}>
+        {loading ? (
+          <div style={styles.emptyState}>Loading records...</div>
+        ) : leaves.length === 0 ? (
+          <div style={styles.emptyState}>
+            <MdOutlineBeachAccess size={48} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
+            <div>No leave records found for this employee.</div>
+          </div>
+        ) : (
+          <div style={styles.tableWrapper}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>S.No</th>
+                  <th style={styles.th}>Leave Type</th>
+                  <th style={styles.th}>Dates</th>
+                  <th style={styles.th}>Reason</th>
+                  <th style={styles.th}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaves.map((l, idx) => (
+                  <tr key={l._id || idx}>
+                    <td style={styles.td}>{idx + 1}</td>
+                    <td style={styles.td}>{l.leaveType}</td>
+                    <td style={styles.td}>
+                      {new Date(l.startDate).toLocaleDateString()} &rarr;{' '}
+                      {new Date(l.endDate).toLocaleDateString()}
+                    </td>
+                    <td style={styles.td}>{l.reason || 'N/A'}</td>
+                    <td style={styles.td}>{getStatusBadge(l.status)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default Listt;

@@ -1,7 +1,3 @@
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-
 export const columns = [
     {
         name: "S No",
@@ -17,7 +13,7 @@ export const columns = [
     }
 ]
 
-export const DepartmentButtons = ({_id,onDepartmentDelete}) => {
+export const DepartmentButtons = () => {
     const styles = {
         container: {
             display: 'flex',
@@ -50,43 +46,16 @@ export const DepartmentButtons = ({_id,onDepartmentDelete}) => {
             outline: 'none',
         }
     };
-    const navigate=useNavigate();
-    const handleDelete=async (id)=>{
-        const confirm=window.confirm("Do you want to delete");
-        if(confirm){
-
-        try {
-                const response = await axios.delete(`http://localhost:5000/api/department/${id}`, {
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                if (response.data.success) {
-                    onDepartmentDelete()
-                }
-
-            } catch (err) {
-                if (err.response) {
-                    console.log("Server error:", err.response.data);
-                } else {
-                    console.log("Error:", err.message);
-                }
-            }
-                        
-        }
-    }
 
     return (
         <div style={styles.container}>
             <button style={styles.edit}
                 onMouseOver={e => e.currentTarget.style.background = '#fb923c'}
                 onMouseOut={e => e.currentTarget.style.background = '#FFA726'}
-                onClick={()=>navigate(`/admin-dashboard/department/${_id}`)}
             >Edit</button>
             <button style={styles.delete}
                 onMouseOver={e => e.currentTarget.style.background = '#b91c1c'}
                 onMouseOut={e => e.currentTarget.style.background = '#F44336'}
-                onClick={()=>handleDelete(_id)}
             >Delete</button>
         </div>
     )

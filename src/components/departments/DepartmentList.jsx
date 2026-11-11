@@ -1,145 +1,224 @@
-import React, { useEffect } from 'react'
-import { Link } from "react-router-dom"
-import DataTable from 'react-data-table-component'
-import { columns, DepartmentButtons } from '../../utils/DepartmentHelper';
-import axios from 'axios';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../utils/api';
+import {
+  MdOutlineApartment,
+  MdOutlineAddBusiness,
+  MdOutlineSearch,
+  MdOutlineEdit,
+  MdOutlineDelete,
+} from 'react-icons/md';
 
-const DepartmentList = () => {
+export const DepartmentList = () => {
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
-  const [departments,setDepartment]=useState([])
-  const [depLoading,setDepLoading]=useState(false);
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
 
-  const onDepartmentDelete=async ()=>{
-    fetchDepartment()
-  }
-
-  const fetchDepartment=async ()=>{
-    setDepLoading(true)
-    try{
-      const response=await axios.get("http://localhost:5000/api/department",{
-        headers:{
-          "Authorization":`Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      if(response.data.success){
-        let sno=1;
-        console.log(response.data.departments)
-        const data=await response.data.departments.map((dep)=>({
-          _id:dep._id,
-          sno:sno++,
-          dep_name:dep.dep_name,
-          action:(<DepartmentButtons _id={dep._id} onDepartmentDelete={onDepartmentDelete}/>)
-        }))
-        setDepartment(data);
+  const fetchDepartments = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/department');
+      if (response.data.success) {
+        setDepartments(response.data.departments || []);
       }
-
-    }catch(err){
-        if (err.response) {
-        console.log("Server error:", err.response.data);
-      } else {
-        console.log("Error:", err.message);
-      }
-    }finally{
-      setDepLoading(false)
+    } catch (err) {
+      console.error('Fetch departments error:', err);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-useEffect(()=>{
-  
-  fetchDepartment();
-},[])
+  const filtered = departments.filter((d) =>
+    (d.dep_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (d.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const styles = {
-    container: {
-      background: '#fff',
-      borderRadius: '16px',
-      boxShadow: '0 4px 15px rgba(44,62,80,0.08)',
-      padding: '2rem',
-      margin: '1.5rem 0',
-      
-      fontFamily: 'Inter, sans-serif',
-      
-    },
     header: {
-      color: '#23272F',
-      fontWeight: 700,
-      fontSize: '2rem',
-      marginBottom: '2.2rem',
-      fontFamily: "'Playfair Display', sans-serif",
-      letterSpacing: '0.5px',
-      
-      marginTop: '100px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '1.8rem',
     },
-    actionsCard: {
-      background: '#f5f3ff',
-      borderRadius: '12px',
-      border: '1px solid #ede9fe',
-      boxShadow: '0 2px 8px rgba(44,62,80,0.04)',
-      
-      marginBottom: '2rem',
+    title: {
+      fontSize: '1.8rem',
+      fontWeight: 800,
+      color: '#0f172a',
+      letterSpacing: '-0.5px',
+      margin: 0,
+    },
+    subtitle: {
+      color: '#64748b',
+      fontSize: '0.9rem',
+      marginTop: '0.2rem',
+    },
+    addBtn: {
       display: 'flex',
       alignItems: 'center',
-      gap: '1rem',
-    },
-    input: {
-      padding: '0.7rem 1rem',
-      border: '1px solid #E0E0E0',
-      borderRadius: '8px',
-      fontSize: '1rem',
-      background: '#fff',
-      color: '#23272F',
-      outline: 'none',
-      flex: 1,
-    },
-    addButton: {
-      background: '#4c1d95',
+      gap: '0.5rem',
+      background: 'linear-gradient(135deg, #4f46e5, #4338ca)',
       color: '#fff',
       border: 'none',
-      borderRadius: '8px',
-      padding: '0.7rem 1.2rem',
+      borderRadius: '10px',
+      padding: '0.65rem 1.2rem',
       fontWeight: 600,
-      fontSize: '1rem',
+      fontSize: '0.95rem',
       cursor: 'pointer',
-      textDecoration: 'none',
-      transition: 'background 0.2s',
-      whiteSpace: 'nowrap',
-      boxShadow: '0 1px 4px rgba(44,62,80,0.08)',
+      boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)',
+    },
+    card: {
+      background: '#ffffff',
+      border: '1px solid #e2e8f0',
+      borderRadius: '16px',
+      padding: '1.5rem',
+      boxShadow: '0 4px 20px -2px rgba(15, 23, 42, 0.05)',
+    },
+    searchBar: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.6rem',
+      background: '#f8fafc',
+      border: '1px solid #e2e8f0',
+      borderRadius: '10px',
+      padding: '0.6rem 1rem',
+      marginBottom: '1.5rem',
+      maxWidth: '450px',
+    },
+    searchInput: {
+      background: 'transparent',
+      border: 'none',
+      outline: 'none',
+      color: '#0f172a',
+      fontSize: '0.92rem',
+      width: '100%',
     },
     tableWrapper: {
-      width: '100%',
       overflowX: 'auto',
-      background: '#fff',
-      borderRadius: '12px',
-      boxShadow: '0 2px 8px rgba(44,62,80,0.04)',
-      padding: '1rem 0.5rem',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      textAlign: 'left',
+    },
+    th: {
+      padding: '0.8rem 1rem',
+      color: '#64748b',
+      fontSize: '0.82rem',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      borderBottom: '1px solid #e2e8f0',
+      background: '#f8fafc',
+    },
+    td: {
+      padding: '0.9rem 1rem',
+      fontSize: '0.92rem',
+      color: '#1e293b',
+      borderBottom: '1px solid #f1f5f9',
+    },
+    emptyState: {
+      padding: '3rem 1rem',
+      textAlign: 'center',
+      color: '#64748b',
     },
   };
 
-  // Example static departments
-  
-
   return (
-    <>{depLoading?"loading...":
-    <div style={styles.container}>
-      <div>
-        <h3 style={styles.header}>Manage Departments</h3>
-      </div>
-      <div style={styles.actionsCard}>
-        <input
-          type="text"
-          placeholder='Search by department name'
-          style={styles.input}
-        />
-        <Link to="/admin-dashboard/add-department" style={styles.addButton}>
-          Add New Department
-        </Link>
-      </div>
-      <div style={styles.tableWrapper}>
-        <DataTable columns={columns} data={departments}/>
-      </div>
-    </div>}</>
-  )
-}
+    <div>
+      <div style={styles.header}>
+        <div>
+          <h1 style={styles.title}>Department Directory</h1>
+          <p style={styles.subtitle}>
+            Organize staff, manage departmental hierarchies, and division structures.
+          </p>
+        </div>
 
-export default DepartmentList
+        <button style={styles.addBtn} onClick={() => navigate('/admin-dashboard/add-department')}>
+          <MdOutlineAddBusiness size={18} />
+          <span>Add Department</span>
+        </button>
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.searchBar}>
+          <MdOutlineSearch size={20} color="#94a3b8" />
+          <input
+            type="text"
+            placeholder="Search by department name or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={styles.searchInput}
+          />
+        </div>
+
+        {loading ? (
+          <div style={styles.emptyState}>Loading departments...</div>
+        ) : filtered.length === 0 ? (
+          <div style={styles.emptyState}>
+            <MdOutlineApartment size={48} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
+            <div>No departments found.</div>
+            <div style={{ fontSize: '0.85rem', marginTop: '0.3rem', color: '#94a3b8' }}>
+              Click "Add Department" to create your first organizational unit.
+            </div>
+          </div>
+        ) : (
+          <div style={styles.tableWrapper}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>S.No</th>
+                  <th style={styles.th}>Department Name</th>
+                  <th style={styles.th}>Description</th>
+                  <th style={styles.th}>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((dep, index) => (
+                  <tr key={dep._id || index}>
+                    <td style={styles.td}>{index + 1}</td>
+                    <td style={styles.td}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '8px',
+                            background: 'rgba(124, 58, 237, 0.2)',
+                            color: '#c4b5fd',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <MdOutlineApartment size={18} />
+                        </div>
+                        <span style={{ fontWeight: 600, color: '#fff' }}>{dep.dep_name}</span>
+                      </div>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={{ color: dep.description ? '#cbd5e1' : '#64748b' }}>
+                        {dep.description || 'No description provided'}
+                      </span>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+                        {dep.createdAt ? new Date(dep.createdAt).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default DepartmentList;

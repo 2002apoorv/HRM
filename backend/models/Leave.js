@@ -1,11 +1,18 @@
- const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const leaveSchema = new Schema({
+  organizationId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true,
+    index: true,
+  },
   employeeId: {
     type: Schema.Types.ObjectId,
     ref: 'Employee',
     required: true,
+    index: true,
   },
   leaveType: {
     type: String,
@@ -39,4 +46,8 @@ const leaveSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model('Leave', leaveSchema);
+leaveSchema.index({ organizationId: 1, employeeId: 1 });
+
+const Leave = mongoose.model('Leave', leaveSchema);
+
+module.exports = Leave;

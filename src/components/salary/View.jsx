@@ -1,148 +1,168 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../utils/api';
+import {
+  MdOutlineArrowBack,
+  MdOutlineAttachMoney,
+} from 'react-icons/md';
 
-const ViewSalary = () => {
-  const [salaries, setSalaries] = useState(null);
-  const [filteredSalaries, setFilteredSalaries] = useState(null);
+export const ViewSalary = () => {
+  const [salaries, setSalaries] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
-  let sno = 1;
-  const { user } = useAuth();
-
-  const fetchSalaries = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/salary/${id}/${user.role}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      console.log(response.data);
-      if (response.data.success) {
-        setSalaries(response.data.salary);
-        setFilteredSalaries(response.data.salary);
-      }
-    } catch (error) {
-      console.error("Error fetching salary:", error);
-    }
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSalaries();
-  }, []);
+  }, [id]);
 
-  const filterSalaries = (q) => {
-    const filteredRecords = salaries.filter((salary) =>
-      salary.employeeId.employeeId.toLowerCase().includes(q.toLowerCase())
-    );
-    setFilteredSalaries(filteredRecords);
+  const fetchSalaries = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/salary/${id}`);
+      if (response.data.success) {
+        setSalaries(response.data.salary || []);
+      }
+    } catch (err) {
+      console.error('Error fetching salaries:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const styles = {
+    header: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      marginBottom: '2rem',
+    },
+    backBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '40px',
+      height: '40px',
+      borderRadius: '10px',
+      background: 'rgba(255, 255, 255, 0.08)',
+      border: '1px solid rgba(255, 255, 255, 0.12)',
+      color: '#fff',
+      cursor: 'pointer',
+    },
+    title: {
+      fontSize: '1.8rem',
+      fontWeight: 800,
+      color: '#fff',
+      letterSpacing: '-0.5px',
+      margin: 0,
+    },
+    subtitle: {
+      color: '#94a3b8',
+      fontSize: '0.9rem',
+      marginTop: '0.2rem',
+    },
+    card: {
+      background: 'rgba(30, 41, 59, 0.7)',
+      backdropFilter: 'blur(12px)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: '16px',
+      padding: '1.5rem',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+    },
+    tableWrapper: {
+      overflowX: 'auto',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      textAlign: 'left',
+    },
+    th: {
+      padding: '0.8rem 1rem',
+      color: '#94a3b8',
+      fontSize: '0.82rem',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+      background: 'rgba(15, 23, 42, 0.4)',
+    },
+    td: {
+      padding: '0.85rem 1rem',
+      fontSize: '0.92rem',
+      color: '#e2e8f0',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+    },
+    emptyState: {
+      padding: '3rem 1rem',
+      textAlign: 'center',
+      color: '#64748b',
+    },
   };
 
   return (
-    <div
-      style={{
-        background: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 4px 15px rgba(44,62,80,0.08)',
-        padding: '2.5rem 2rem',
-        margin: '1.5rem auto',
-        maxWidth: '900px',
-        width: '100%',
-        fontFamily: 'Inter, sans-serif',
-        marginTop:"100px" 
-      }}
-    >
-      <div style={{ textAlign: 'center', marginBottom: '2.2rem'}}>
-        <h2 style={{
-          color: '#23272F',
-          fontWeight: 700,
-          fontSize: '2rem',
-          fontFamily: "'Playfair Display', serif",
-          letterSpacing: '0.5px',
-          margin: 0,
-        }}>
-          Salary History
-        </h2>
-      </div>
-
-      <div style={{
-        background: '#f5f3ff',
-        borderRadius: '12px',
-        border: '1px solid #ede9fe',
-        boxShadow: '0 2px 8px rgba(44,62,80,0.04)',
-        padding: '1rem 1.5rem',
-        marginBottom: '2rem',
-        display: 'flex',
-        justifyContent: 'flex-end',
-      }}>
-        <input
-          type="text"
-          placeholder="Search By Emp ID"
-          style={{
-            border: '1px solid #c4b5fd',
-            padding: '0.7rem 1rem',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            background: '#fff',
-            color: '#23272F',
-            outline: 'none',
-            fontFamily: "'Inter', sans-serif",
-            minWidth: '220px',
-          }}
-          onChange={(e) => filterSalaries(e.target.value)}
-        />
-      </div>
-
-      {filteredSalaries === null ? (
-        <div>Loading ...</div>
-      ) : filteredSalaries.length > 0 ? (
-        <div style={{
-          overflowX: 'auto',
-          background: '#fff',
-          borderRadius: '12px',
-          boxShadow: '0 2px 8px rgba(44,62,80,0.04)',
-          padding: '1rem 0.5rem',
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1rem', background: '#fff', fontFamily: "'Inter', sans-serif" }}>
-            <thead>
-              <tr style={{ background: '#f5f3ff', color: '#23272F' }}>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>SNO</th>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Emp ID</th>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Salary</th>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Allowance</th>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Deduction</th>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Total</th>
-                <th style={{ padding: '12px 8px', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.2px', borderBottom: '2px solid #f0f0f0' }}>Pay Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSalaries.map((salary, idx) => (
-                <tr
-                  key={salary._id}
-                  style={{
-                    background: idx % 2 === 0 ? '#fff' : '#f7f6f3',
-                    color: '#23272F',
-                    borderBottom: '1px solid #EEE',
-                  }}
-                >
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{idx + 1}</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{salary.employeeId.employeeId}</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{salary.basicSalary}</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{salary.allowance}</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{salary.deductions}</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{salary.netSalary}</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                    {new Date(salary.payDate).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div>
+      <div style={styles.header}>
+        <button style={styles.backBtn} onClick={() => navigate('/admin-dashboard/employees')}>
+          <MdOutlineArrowBack size={20} />
+        </button>
+        <div>
+          <h1 style={styles.title}>Salary & Compensation History</h1>
+          <p style={styles.subtitle}>Historical breakdown of monthly pay disbursements.</p>
         </div>
-      ) : (
-        <div>No Records</div>
-      )}
+      </div>
+
+      <div style={styles.card}>
+        {loading ? (
+          <div style={styles.emptyState}>Loading compensation history...</div>
+        ) : salaries.length === 0 ? (
+          <div style={styles.emptyState}>
+            <MdOutlineAttachMoney size={48} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
+            <div>No salary records found for this employee.</div>
+          </div>
+        ) : (
+          <div style={styles.tableWrapper}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>S.No</th>
+                  <th style={styles.th}>Pay Date</th>
+                  <th style={styles.th}>Basic Salary</th>
+                  <th style={styles.th}>Allowances</th>
+                  <th style={styles.th}>Deductions</th>
+                  <th style={styles.th}>Net Salary</th>
+                </tr>
+              </thead>
+              <tbody>
+                {salaries.map((s, idx) => (
+                  <tr key={s._id || idx}>
+                    <td style={styles.td}>{idx + 1}</td>
+                    <td style={styles.td}>
+                      {s.payDate ? new Date(s.payDate).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td style={styles.td}>${Number(s.basicSalary || 0).toLocaleString()}</td>
+                    <td style={styles.td}>
+                      <span style={{ color: '#6ee7b7' }}>
+                        +${Number(s.allowances || 0).toLocaleString()}
+                      </span>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={{ color: '#fca5a5' }}>
+                        -${Number(s.deductions || 0).toLocaleString()}
+                      </span>
+                    </td>
+                    <td style={styles.td}>
+                      <strong style={{ color: '#fff' }}>
+                        ${Number(s.netSalary || 0).toLocaleString()}
+                      </strong>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

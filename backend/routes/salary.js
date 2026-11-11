@@ -8,7 +8,7 @@ const router =express.Router();
 
 
 router.post("/add",authMiddleware,addSalary )
-router.get("/:id/:role",authMiddleware,getSalary )
+router.get("/:id",authMiddleware,getSalary )
  
 
 

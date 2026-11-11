@@ -1,9 +1,9 @@
 const express = require('express');
-const { getAttendance } = require('../controller/attendanceController');
-const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-const defaultAttendance= require('../middleware/defaultAttendance');
+const { getAttendance, updateAttendance } = require('../controller/attendanceController');
+const router = express.Router();
 
-router.get('/',authMiddleware,defaultAttendance, getAttendance);
+router.get('/', authMiddleware, getAttendance);
+router.post('/update', authMiddleware, updateAttendance);
 
 module.exports = router;

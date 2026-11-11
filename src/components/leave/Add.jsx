@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authContext';
 import axios from 'axios';
 
 export const Addleave = () => {
@@ -30,7 +30,7 @@ export const Addleave = () => {
                 }
             });
             if (response.data.success) {
-                navigate(`/employee-dashboard/leaves/${user._id}`);
+                navigate("/employee-dashboard/leaves");
             }
         } catch (err) {
             if (err.response) {
@@ -45,11 +45,10 @@ export const Addleave = () => {
         <div style={{
             maxWidth: '500px',
             margin: '50px auto',
-            padding: '40px',
+            padding: '20px',
             borderRadius: '8px',
             background: '#fff',
-            boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-            marginTop:"100px",paddingRight:"60px"
+            boxShadow: '0 0 10px rgba(0,0,0,0.1)'
         }}>
             <h2>Request for Leave</h2>
             <form onSubmit={handleSubmit}>
@@ -60,8 +59,8 @@ export const Addleave = () => {
                         value={leave.leaveType}
                         onChange={handleChange}
                         style={{
-                            width: '517px',
-                            padding: '18px',
+                            width: '100%',
+                            padding: '8px',
                             borderRadius: '4px',
                             border: '1px solid #ccc'
                         }}
@@ -74,7 +73,7 @@ export const Addleave = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                    <div style={{ flex: 1 ,marginRight:"5px"}}>
+                    <div style={{ flex: 1 }}>
                         <label>From Date</label><br />
                         <input
                             type="date"
@@ -90,7 +89,7 @@ export const Addleave = () => {
                         />
                     </div>
 
-                    <div style={{ flex: 1,marginLeft:"10px" }}>
+                    <div style={{ flex: 1 }}>
                         <label>To Date</label><br />
                         <input
                             type="date"
@@ -127,9 +126,9 @@ export const Addleave = () => {
                 <button
                     type="submit"
                     style={{
-                        width: '517px',
+                        width: '100%',
                         padding: '10px',
-                        backgroundColor: 'rgb(76, 29, 149)',
+                        backgroundColor: '#00897b',
                         color: '#fff',
                         border: 'none',
                         borderRadius: '4px',

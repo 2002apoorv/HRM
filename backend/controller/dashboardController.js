@@ -1,56 +1,33 @@
-const {Employee} = require('../models/Employee');
-const {Department} = require('../models/Department');
+const { Employee } = require('../models/Employee');
+const { Department } = require('../models/Department');
 const Leave = require('../models/Leave');
-const Salary = require('../models/Salary');
 
-const getSummary = async (req, res) => {
-    try {
-        // Fetching the summary data from the database
-        const totalEmployees = await Employee.countDocuments();
-        const totalDepartments = await Department.countDocuments();
-        const totalSalaries = await Salary.countDocuments();
+const getHrmSummary = async (req, res) => {
+  try {
+    const orgId = req.organizationId;
 
-        // const totalSalaries = await Employee.aggregate([
-        //     { $group: { _id: null, totalSalary: { $sum: "$salary" } } }
-        // ]);
+    const [totalEmployees, totalDepartments, pendingLeaves, recentEmployees] = await Promise.all([
+      Employee.countDocuments({ organizationId: orgId }),
+      Department.countDocuments({ organizationId: orgId }),
+      Leave.countDocuments({ organizationId: orgId, status: 'Pending' }),
+      Employee.find({ organizationId: orgId })
+        .populate('userId', 'name email')
+        .populate('department', 'dep_name')
+        .sort({ createdAt: -1 })
+        .limit(5),
+    ]);
 
-        const employeeAppliedForLeave = await Leave.distinct("employeeId");
+    return res.status(200).json({
+      success: true,
+      totalEmployees,
+      totalDepartments,
+      pendingLeaves,
+      recentEmployees,
+    });
+  } catch (err) {
+    console.error('HRM summary error:', err);
+    return res.status(500).json({ success: false, error: 'Failed to fetch HRM summary' });
+  }
+};
 
-        const leaveStatus = await Leave.aggregate([
-            {
-                $group: {
-                    _id: "$status",
-                    count: { $sum: 1 }
-                }
-            }
-        ])
-
-
-        const leaveSummary = {
-            appliedFor: employeeAppliedForLeave.length,
-            approved: leaveStatus.find(item => item._id === "Approved")?.count || 0,
-            rejected: leaveStatus.find(item => item._id === "Rejected")?.count || 0,
-            pending: leaveStatus.find(item => item._id === "Pending")?.count || 0,
-        }
-
-
-        // Sending the summary response
-        res.status(200).json({
-            success: true,
-            totalEmployees,
-            totalDepartments,
-            totalSalaries: totalSalaries,
-            leaveSummary
-        });
-    } catch (error) {
-        console.error("Error fetching summary:", error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-    }
-}
-
-module.exports = {
-    getSummary
-}
+module.exports = { getHrmSummary };
