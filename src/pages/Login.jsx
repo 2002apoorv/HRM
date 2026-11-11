@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/authContext.jsx';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Preloader from '../components/Preloader';
@@ -31,7 +31,7 @@ export const Login = () => {
     const emailToSend = normalizedInput === 'admin' ? 'admin@gmail.com' : email.trim();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email: emailToSend,
         password,
       });

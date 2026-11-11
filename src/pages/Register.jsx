@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/authContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import Preloader from '../components/Preloader';
@@ -131,7 +131,7 @@ export const Register = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await api.post('/auth/register', {
         organizationName,
         name,
         email,
